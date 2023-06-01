@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:latest
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: test_snapfood
+      MYSQL_USER: snapfood
+      MYSQL_PASSWORD: sn@pf00d
+    volumes:
+      - db-data:/var/lib/mysql
+
+  app:
+    volumes:
+      - .:/app
+    image: maven:latest
+    working_dir: /app
+    command: bash -c "mvn clean install && mvn -f application/pom.xml clean spring-boot:run"
+    restart: always
+    stdin_open: true
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/test_snapfood
+      SPRING_DATASOURCE_USERNAME: snapfood
+      SPRING_DATASOURCE_PASSWORD: sn@pf00d
+
+volumes:
+  db-data:
