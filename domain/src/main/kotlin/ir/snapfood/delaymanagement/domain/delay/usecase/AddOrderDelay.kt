@@ -18,16 +18,15 @@ class AddOrderDelay(
     private val delayReportFactory: DelayReportFactory,
     private val delayReportRepository: DelayReportRepository,
     engine: Engine
-) : UseCase<AddOrderDelay.Dto, DelayReport>(engine) {
+) : UseCase<AddOrderDelay.Dto, Pair<DelayReport, Int?>>(engine) {
 
     data class Dto(val orderId: Int) : DTO
 
-    override fun execute(input: Dto): DelayReport {
+    override fun execute(input: Dto): Pair<DelayReport, Int?> {
         mustRunInTransaction()
 
         val order = call<Order>(GetOrderById.Dto(input.orderId))
-        val currentOrderDelayTimeDelivery = order.currentDelayTime
-            .takeIf { orderDelayTime -> orderDelayTime > 0 }
+        val currentOrderDelayTimeDelivery = order.takeIf { order -> order.hasDelay }?.currentDelayTime
             ?: throw InvalidDataException("orderTimeDeliveryWasNotExpired")
         checkOrderHasAnyActiveDelayReport(order.id)
 
@@ -43,6 +42,7 @@ class AddOrderDelay(
         return delayReportFactory.create(order.id, calculatedDelayTime)
             .let(delayReportRepository::save)
             .also { delayReport -> registerEvent(DelayReportCreated(delayReport)) }
+            .let { delayReport -> Pair(delayReport, newTimeDeliveryEstimate) }
     }
 
     private fun checkOrderHasAnyActiveDelayReport(orderId: Int) {

@@ -12,7 +12,6 @@ abstract class Order {
     abstract val createdAt: Date
     abstract var updatedAt: Date
 
-    private val deadLineTimeDelivery: Date get() = createdAt.addMinutes(timeDelivery)
     val currentDelayTime: Int
         get() {
             val deadLineTimeDelivery = createdAt.addMinutes(timeDelivery)
@@ -21,12 +20,10 @@ abstract class Order {
                 deadLineTimeDelivery.diffInMinutes(Date())
             } else 0
         }
-    val deliveryTimer: Int
-        get() = createdAt.addMinutes(timeDelivery)
-            .diffInMinutes(Date())
+    val hasDelay: Boolean get() = createdAt.addMinutes(timeDelivery) < Date()
 
     fun updateTimeDelivery(newEstimatedTimeDelivery: Int) {
-        if (currentDelayTime == 0) {
+        if (!hasDelay) {
             throw InvalidDataException("orderTimeDeliveryWasNotExpired")
         }
 

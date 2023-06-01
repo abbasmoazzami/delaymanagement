@@ -1,6 +1,7 @@
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/test_snapfood
+    url: jdbc:mysql://127.0.0.1:3306/snapfood
+    username: root
   jpa:
     hibernate:
       ddl-auto: validate

@@ -16,12 +16,10 @@ class UserOrderService(
 ) {
 
     fun addDelay(orderId: Int): UserDelayMessageResponse {
-        val delayReport = useCaseGateway.executeTransactional<DelayReport>(AddOrderDelay.Dto(orderId)) as JpaDelayReport
-        val message = when {
-            delayReport.order?.currentDelayTime == 0 ->
-                messageSource.getMessageFa("orderIsInDeliveryMode", arrayOf(delayReport.order.deliveryTimer))
-
-            else -> messageSource.getMessageFa("willBeTrackedByAgents")
+        val (delayReport, newDeliveryEstimateTime) = useCaseGateway.executeTransactional<Pair<DelayReport, Int?>>(AddOrderDelay.Dto(orderId))
+        val message = when (newDeliveryEstimateTime) {
+            null -> messageSource.getMessageFa("willBeTrackedByAgents")
+            else -> messageSource.getMessageFa("orderIsInDeliveryMode", arrayOf(newDeliveryEstimateTime))
         }
 
         return UserDelayMessageResponse(
