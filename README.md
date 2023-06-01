@@ -17,7 +17,7 @@ curl 'http://localhost:8080/demo/fill'
 ```
 
 ## لیست API ها
-- گزارش تاخیر
+- گزارش تاخیر برای سفارش
 ```
 curl --request POST 'http://localhost:8080/api/v1.0/orders/{orderId}/delay'
 ```
@@ -25,7 +25,7 @@ curl --request POST 'http://localhost:8080/api/v1.0/orders/{orderId}/delay'
 ```
 - curl --request POST 'http://localhost:8080/agent/api/v1.0/orders/delays/assign?agentId={agentId}
 ```
-- گزارش تاخیر 7 روز گذشته
+- گزارش تاخیر فروشگاه‌ها در 7 روز گذشته به صورت نزولی
 ```
 curl 'http://localhost:8080/admin/api/v1.0/reports/vendors/delays'
 ```
